@@ -8,8 +8,8 @@ This web application creates a compressed (.zip) file that contains the contents
 - This web application is installed along side ODM Decision Center see [this technote](https://www.ibm.com/support/pages/decision-center-database-export-utility) for details.
 
 ## Deployment
-- For ODM since 9.5 use this implementation 
-- For ODM before 9.5 use this implementation
+- For Operational Decicion Manager **before 9.5** use [this implementation](resources/javaEE/decisioncenter-dbdump.war)
+- For Operational Decision Manager **since 9.5** use [this implementation](resources/jakartaEE/decisioncenter-dbdump.war)
 
 # Issues and contributions
 For issues relating specifically to this repository, please use the [GitHub issue tracker](../../issues).
