@@ -1,14 +1,15 @@
-# [[TITLE]]
-![Build Status]([[BUILD_STATUS_URL]])
+# ODM Decision Center database export utility
+
 
 ## Features
-- describe what the project does
+This web application creates a compressed (.zip) file that contains the contents of a Decision Center repository. Optionally, the application can exclude the rule definitions to address privacy concerns while still reproducing most repository issues. The application must be deployed on the server that contains Decision Center data source. It can typically be deployed alongside Decision Center.
 
 ## Requirements
-- describe what is needed to build and use
+- This web application is installed along side ODM Decision Center see [this technote](https://www.ibm.com/support/pages/decision-center-database-export-utility) for details.
 
 ## Deployment
-- describe how to use this project
+- For ODM since 9.5 use this implementation 
+- For ODM before 9.5 use this implementation
 
 # Issues and contributions
 For issues relating specifically to this repository, please use the [GitHub issue tracker](../../issues).
