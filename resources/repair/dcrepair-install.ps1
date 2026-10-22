@@ -4,15 +4,22 @@ param(
 
 $scriptRoot = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent $MyInvocation.MyCommand.Path }
 
-class TrustAllCertsPolicy : System.Net.ICertificatePolicy {
-    [bool] CheckValidationResult([System.Net.ServicePoint] $a,
-                                 [System.Security.Cryptography.X509Certificates.X509Certificate] $b,
-                                 [System.Net.WebRequest] $c,
-                                 [int] $d) {
-        return $true
-    }
+# Accept any certificate (same behaviour as wget --no-check-certificate in the .sh script)
+if ($PSVersionTable.PSVersion.Major -ge 6) {
+    $PSDefaultParameterValues['Invoke-WebRequest:SkipCertificateCheck'] = $true
+    $PSDefaultParameterValues['Invoke-RestMethod:SkipCertificateCheck'] = $true
+} else {
+    # Windows PowerShell 5.1 has no -SkipCertificateCheck
+    Add-Type @"
+using System.Net;
+using System.Security.Cryptography.X509Certificates;
+public class TrustAllCertsPolicy : ICertificatePolicy {
+    public bool CheckValidationResult(ServicePoint sp, X509Certificate cert, WebRequest req, int problem) { return true; }
 }
-[System.Net.ServicePointManager]::CertificatePolicy = [TrustAllCertsPolicy]::new()
+"@
+    [System.Net.ServicePointManager]::CertificatePolicy = New-Object TrustAllCertsPolicy
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
+}
 
 
 $odmPath = Join-Path $scriptRoot 'odm'
@@ -48,7 +55,8 @@ Try {
 # download dcrepair zip
 try {
     # find the latest DC_Repair-<version>.zip published in the directory
-    $latest = Invoke-RestMethod -Uri $dcrepairapi | Where-Object { $_.name -match '^DC_Repair-[\d._]+\.zip$' } |
+    $files = Invoke-RestMethod -Uri $dcrepairapi
+    $latest = $files | Where-Object { $_.name -match '^DC_Repair-[\d._]+\.zip$' } |
         Sort-Object { [version](($_.name -replace '^DC_Repair-|\.zip$','') -replace '_','.') } | Select-Object -Last 1
     if (-not $latest) { throw "No DC_Repair-<version>.zip found at $dcrepairapi" }
     $dcrepairpath = $latest.download_url
